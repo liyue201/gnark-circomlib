@@ -1,6 +1,8 @@
 package circuits
 
-import "math/big"
+import (
+	"math/big"
+)
 
 func Lsh(k int64, n uint) *big.Int {
 	z := big.NewInt(k)
