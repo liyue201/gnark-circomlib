@@ -2,6 +2,10 @@ package circuits
 
 import "github.com/consensys/gnark/frontend"
 
+func IsZero(api frontend.API, a frontend.Variable) frontend.Variable {
+	return api.IsZero(a)
+}
+
 func BoolNeg(api frontend.API, a frontend.Variable) frontend.Variable {
 	api.AssertIsBoolean(a)
 	return api.Xor(a, 1)

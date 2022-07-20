@@ -6,5 +6,7 @@ import (
 )
 
 func AliasCheck(api frontend.API, in []frontend.Variable) {
-	api.AssertIsEqual(CompConstant(api, in, big.NewInt(0).Sub(Lsh(1, 255), big.NewInt(1))), 0)
+	q := api.Compiler().Curve().Info().Fr.Modulus()
+	q.Sub(q, big.NewInt(1))
+	api.AssertIsEqual(CompConstant(api, in, q), 0)
 }
