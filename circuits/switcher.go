@@ -15,7 +15,7 @@ func Switcher(api frontend.API, sel, l, r frontend.Variable) (frontend.Variable,
 	aux := api.Mul(api.Sub(r, l), sel)
 
 	outL := api.Add(aux, l)
-	outR := api.Add(api.Sub(0, aux), r)
+	outR := api.Sub(r, aux)
 
 	return outL, outR
 }
