@@ -15,18 +15,23 @@ func IsEqual(api frontend.API, a frontend.Variable, b frontend.Variable) fronten
 	return api.IsZero(api.Sub(a, b))
 }
 
-func IsGreater(api frontend.API, a frontend.Variable, b frontend.Variable) frontend.Variable {
-	return IsEqual(api, api.Cmp(a, b), 1)
+func ForceEqualIfEnabled(api frontend.API, a, b, enabled frontend.Variable) {
+	c := api.IsZero(api.Sub(a, b))
+	api.AssertIsEqual(api.Mul(api.Sub(1, c), enabled), 0)
 }
 
-func IsLess(api frontend.API, a frontend.Variable, b frontend.Variable) frontend.Variable {
+func LessThan(api frontend.API, a frontend.Variable, b frontend.Variable) frontend.Variable {
 	return IsEqual(api, api.Cmp(a, b), -1)
 }
 
-func IsLessOrEqual(api frontend.API, a frontend.Variable, b frontend.Variable) frontend.Variable {
-	return BoolNeg(api, IsGreater(api, a, b))
+func LessEqThan(api frontend.API, a frontend.Variable, b frontend.Variable) frontend.Variable {
+	return BoolNeg(api, GreaterThan(api, a, b))
 }
 
-func IsGreaterOrEqual(api frontend.API, a frontend.Variable, b frontend.Variable) frontend.Variable {
-	return BoolNeg(api, IsLess(api, a, b))
+func GreaterThan(api frontend.API, a frontend.Variable, b frontend.Variable) frontend.Variable {
+	return IsEqual(api, api.Cmp(a, b), 1)
+}
+
+func GreaterEqThan(api frontend.API, a frontend.Variable, b frontend.Variable) frontend.Variable {
+	return BoolNeg(api, LessThan(api, a, b))
 }
