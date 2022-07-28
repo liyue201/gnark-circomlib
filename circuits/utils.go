@@ -30,8 +30,12 @@ func BigSub(x *big.Int, y *big.Int) *big.Int {
 	return z.Sub(x, y)
 }
 
-func BigMul(x *big.Int, y *big.Int) *big.Int {
-	return big.NewInt(0).Mul(x, y)
+func BigMul(x *big.Int, y *big.Int, c ...*big.Int) *big.Int {
+	z := big.NewInt(0).Mul(x, y)
+	for _, v := range c {
+		z = z.Mul(z, v)
+	}
+	return z
 }
 
 func BigDiv(x *big.Int, y *big.Int) *big.Int {
