@@ -1,7 +1,6 @@
 package circuits
 
 import (
-	"github.com/consensys/gnark/frontend"
 	"math/big"
 )
 
@@ -14,7 +13,7 @@ func pointAdd(x1, y1, x2, y2 *big.Int) (*big.Int, *big.Int) {
 	return x, y
 }
 
-func EscalarMulW4Table(api frontend.API, base [2]*big.Int, k int) [][]*big.Int {
+func EscalarMulW4Table(base [2]*big.Int, k int) [][]*big.Int {
 	out := make([][]*big.Int, 16)
 	for i := 0; i < 16; i++ {
 		out[i] = make([]*big.Int, 2)
