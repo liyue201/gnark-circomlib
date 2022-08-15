@@ -3,11 +3,11 @@ package circuits
 import (
 	"fmt"
 	"github.com/consensys/gnark-crypto/ecc"
-	bn254 "github.com/consensys/gnark-crypto/ecc/bn254/fr/mimc"
 	"github.com/consensys/gnark/backend"
 	"github.com/consensys/gnark/frontend"
 	"github.com/consensys/gnark/frontend/cs/r1cs"
 	"github.com/consensys/gnark/test"
+	"github.com/iden3/go-iden3-crypto/mimc7"
 	"math/big"
 	"testing"
 )
@@ -18,8 +18,8 @@ type mimcTest struct {
 }
 
 func (t *mimcTest) Define(api frontend.API) error {
-	hash := MiMC7(api, 91, t.A, 0)
-	api.AssertIsDifferent(hash, t.Hash)
+	hash := MiMC7(api, 90, t.A, 5)
+	api.AssertIsEqual(hash, t.Hash)
 	return nil
 }
 
@@ -27,10 +27,8 @@ func Test_MiMC(t *testing.T) {
 	assert := test.NewAssert(t)
 	var circuit mimcTest
 
-	mimc := bn254.NewMiMC()
 	a := big.NewInt(1)
-	h := mimc.Sum(a.Bytes())
-	hash := big.NewInt(0).SetBytes(h)
+	hash := mimc7.MIMC7HashGeneric(a, big.NewInt(5), 90)
 
 	t.Logf("hash: %v", hash)
 

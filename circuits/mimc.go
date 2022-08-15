@@ -122,7 +122,7 @@ func MiMC7(api frontend.API, nRounds int, xIn, k frontend.Variable) frontend.Var
 
 	for i := 0; i < nRounds; i++ {
 		if i == 0 {
-			t = api.And(k, xIn)
+			t = api.Add(k, xIn)
 		} else {
 			t = api.Add(k, t7[i-1], c[i])
 		}
