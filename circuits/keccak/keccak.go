@@ -7,9 +7,44 @@ import (
 	"math/big"
 )
 
-
 func init() {
 	hint.Register(divFunc)
+}
+
+func Keccak512(api frontend.API, mBytes []frontend.Variable) []frontend.Variable {
+	return keccakN(api, mBytes, 72, 64, 1)
+}
+
+func Keccak256(api frontend.API, mBytes []frontend.Variable) []frontend.Variable {
+	return keccakN(api, mBytes, 136, 32, 1)
+}
+
+func keccakN(api frontend.API, mBytes []frontend.Variable, rate, outputLen int, dsbyte byte) []frontend.Variable {
+	p := mBytes
+	s := make([]frontend.Variable, 25)
+	for i := 0; i < len(s); i++ {
+		s[i] = 0
+	}
+
+	for len(p) >= rate {
+		permute(api, s, p, rate)
+		p = p[rate:]
+	}
+	if len(p) > 0 {
+		p = append(p, dsbyte)
+		padNum := rate - len(p)
+		if padNum > 0 {
+			pad := make([]frontend.Variable, padNum)
+			for i := 0; i < padNum; i++ {
+				pad[i] = 0
+			}
+			p = append(p, pad...)
+		}
+		p[rate-1] = u8Xor(api, p[rate-1], 0x80)
+		s = permute(api, s, p, rate)
+		p = p[rate:]
+	}
+	return copyOutUnaligned(api, s, rate, outputLen)
 }
 
 func u64Xor(api frontend.API, a frontend.Variable, b frontend.Variable, cs ...frontend.Variable) frontend.Variable {
@@ -82,38 +117,8 @@ func u8Xor(api frontend.API, a frontend.Variable, b frontend.Variable, cs ...fro
 	return api.FromBinary(bitsRes...)
 }
 
-func Keccak512(api frontend.API, mBytes []frontend.Variable) []frontend.Variable {
-
-	rate := 72
-	p := mBytes
-	s := make([]frontend.Variable, 25)
-	for i := 0; i < len(s); i++ {
-		s[i] = 0
-	}
-
-	for len(p) >= rate {
-		permute(api, s, p, rate)
-		p = p[rate:]
-	}
-	if len(p) > 0 {
-		p = append(p, 1)
-		padNum := rate - len(p)
-		if padNum > 0 {
-			pad := make([]frontend.Variable, padNum)
-			for i := 0; i < padNum; i++ {
-				pad[i] = 0
-			}
-			p = append(p, pad...)
-		}
-		p[rate-1] = u8Xor(api, p[rate-1], 0x80)
-		s = permute(api, s, p, rate)
-		p = p[rate:]
-	}
-	return copyOutUnaligned(api, s)
-}
-
 func permute(api frontend.API, s, p []frontend.Variable, rate int) []frontend.Variable {
-	api.Println(p...)
+	//api.Println(p...)
 	buf := make([]frontend.Variable, rate/8)
 	for i := 0; i < len(buf); i++ {
 		var bits []frontend.Variable
@@ -128,14 +133,13 @@ func permute(api frontend.API, s, p []frontend.Variable, rate int) []frontend.Va
 	return s
 }
 
-func copyOutUnaligned(api frontend.API, s []frontend.Variable) []frontend.Variable {
-	out := make([]frontend.Variable, 64)
-	r := 72
+func copyOutUnaligned(api frontend.API, s []frontend.Variable, rate, outputLen int) []frontend.Variable {
+	out := make([]frontend.Variable, outputLen)
 	w := 8
-	for b := 0; b < 64; {
+	for b := 0; b < outputLen; {
 		for y := 0; y < 5; y++ {
 			for x := 0; x < 5; x++ {
-				if x+5*y < (r/w) && (b < 64) {
+				if x+5*y < (rate/w) && (b < outputLen) {
 					bits := api.ToBinary(s[5*x+y], 64)
 					for i := 0; i < 8; i++ {
 						out[b+i] = api.FromBinary(bits[i*8 : (i+1)*8]...)

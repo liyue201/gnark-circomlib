@@ -14,7 +14,7 @@ import (
 )
 
 type keccak512Circuit struct {
-	M    [72*2-1]frontend.Variable `gnark:",public"`
+	M    [100]frontend.Variable `gnark:",public"`
 	Hash [64]frontend.Variable `gnark:",public"`
 }
 
@@ -56,3 +56,49 @@ func Test_Keccak512(t *testing.T) {
 	internal, secret, public := _r1cs.GetNbVariables()
 	fmt.Printf("public, secret, internal %v, %v, %v\n", public, secret, internal)
 }
+
+
+type keccak256Circuit struct {
+	M    [300]frontend.Variable `gnark:",public"`
+	Hash [32]frontend.Variable `gnark:",public"`
+}
+
+func (t *keccak256Circuit) Define(api frontend.API) error {
+
+	hash := Keccak256(api, t.M[:])
+	for i := 0; i < len(hash); i++ {
+		api.AssertIsEqual(hash[i], t.Hash[i])
+	}
+	//api.Println(hash...)
+
+	return nil
+}
+
+func Test_Keccak256(t *testing.T) {
+	assert := test.NewAssert(t)
+	var circuit keccak256Circuit
+	rand.Seed(time.Now().Unix())
+	m := make([]byte, len(circuit.M))
+	for i := 0; i< len(circuit.M); i++ {
+		m[i] = byte(rand.Int() % 256)
+		circuit.M[i] = m[i]
+	}
+	hash := crypto.Keccak256Hash(m)
+	var assignment keccak256Circuit
+	for i := 0; i < len(assignment.M); i++ {
+		assignment.M[i] = m[i]
+	}
+	for i := 0; i < len(assignment.Hash); i++ {
+		assignment.Hash[i] = hash[i]
+	}
+
+	assert.ProverSucceeded(&circuit, &assignment, test.WithCurves(ecc.BN254), test.WithBackends(backend.GROTH16))
+
+	_r1cs, err := frontend.Compile(ecc.BN254, r1cs.NewBuilder, &circuit, frontend.IgnoreUnconstrainedInputs())
+	if err != nil {
+		t.Errorf("Compile: %v", err)
+	}
+	internal, secret, public := _r1cs.GetNbVariables()
+	fmt.Printf("public, secret, internal %v, %v, %v\n", public, secret, internal)
+}
+
