@@ -163,48 +163,6 @@ func xorIn(api frontend.API, s []frontend.Variable, buf []frontend.Variable) []f
 	return s
 }
 
-func Sponge(api frontend.API, m []frontend.Variable) []frontend.Variable {
-	//m[5] = 1
-	//m[8], _ = new(big.Int).SetString("8000000000000000", 16)
-	//api.Println(m...)
-
-	r := 72
-	w := 8
-	size := len(m) * 8
-	s := make([]frontend.Variable, 25)
-	for i := 0; i < len(s); i++ {
-		s[i] = frontend.Variable(0)
-	}
-	for i := 0; i < size/r; i++ {
-		for y := 0; y < 5; y++ {
-			for x := 0; x < 5; x++ {
-				if x+5*y < r/w {
-					s[5*x+y] = u64Xor(api, s[5*x+y], m[i*9+x+5*y])
-				}
-			}
-		}
-		s = keccakF(api, s)
-	}
-
-	//api.Println(s...)
-
-	seedBytes := make([]frontend.Variable, 64)
-	for b := 0; b < 64; {
-		for y := 0; y < 5; y++ {
-			for x := 0; x < 5; x++ {
-				if x+5*y < (r/w) && (b < 64) {
-					bits := api.ToBinary(s[5*x+y], 64)
-					for i := 0; i < 8; i++ {
-						seedBytes[b+i] = api.FromBinary(bits[i*8 : (i+1)*8]...)
-					}
-					b += 8
-				}
-			}
-		}
-	}
-	return seedBytes
-}
-
 func pow2(n uint) *big.Int {
 	return new(big.Int).Lsh(big.NewInt(1), n)
 }

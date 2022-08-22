@@ -71,100 +71,73 @@ func PoseidonEx(api frontend.API, inputs []frontend.Variable, initialState front
 	m := POSEIDON_M(t)
 	p := POSEIDON_P(t)
 
-	ark0In := make([]frontend.Variable, t)
+	state := make([]frontend.Variable, t)
 	for j := 0; j < t; j++ {
 		if j == 0 {
-			ark0In[0] = initialState
+			state[0] = initialState
 		} else {
-			ark0In[j] = inputs[j-1]
+			state[j] = inputs[j-1]
 		}
 	}
-	ark0Out := Ark(api, ark0In, c, 0)
+	state = Ark(api, state, c, 0)
 
-	var (
-		mixIn     []frontend.Variable
-		mixOut    []frontend.Variable
-		arkIn     []frontend.Variable
-		arkOut    []frontend.Variable
-		sigmaFIn  []frontend.Variable
-		sigmaFOut []frontend.Variable
-	)
-
-	for r := 0; r < nRoundsF/2+1; r++ {
-		if r == 0 {
-			sigmaFIn = ark0Out
-		} else {
-			sigmaFIn = mixOut
-		}
-		sigmaFOut = make([]frontend.Variable, t)
-		for j := 0; j < t; j++ {
-			sigmaFOut[j] = Sigma(api, sigmaFIn[j])
-		}
-		arkIn = sigmaFOut
-		arkOut = Ark(api, arkIn, c, (r+1)*t)
-		mixIn = arkOut
-		mixOut = Mix(api, mixIn, m)
-	}
-
-	sigmaFIn = mixOut
-	for j := 0; j < t; j++ {
-		sigmaFOut[j] = Sigma(api, sigmaFIn[j])
-	}
-
-	arkIn = sigmaFOut
-	arkOut = Ark(api, arkIn, c, nRoundsF/2*t)
-	mixIn = arkOut
-	mixOut = Mix(api, mixIn, p)
-
-	var (
-		sigmaPIn  frontend.Variable
-		sigmaPOut frontend.Variable
-		mixSIn    []frontend.Variable
-		mixSOut   []frontend.Variable
-	)
-	for r := 0; r < nRoundsP; r++ {
-		if r == 0 {
-			sigmaPIn = mixOut[0]
-		} else {
-			sigmaPIn = mixSOut[0]
-		}
-		sigmaPOut = Sigma(api, sigmaPIn)
-
-		mixSIn = make([]frontend.Variable, t)
-		for j := 0; j < t; j++ {
-			if j == 0 {
-				mixSIn[j] = api.Add(sigmaPOut, c[nRoundsF/2+1+r])
-			} else {
-				if r == 0 {
-					mixSIn[j] = mixOut[j]
-				}else {
-					mixSIn[j] = mixSOut[j]
-				}
-			}
-		}
-		mixSOut = MixS(api, mixSIn, s, r)
-	}
+	//api.Println(10000000000)
+	//api.Println(state...)
 
 	for r := 0; r < nRoundsF/2-1; r++ {
-		if r == 0 {
-			sigmaFIn = mixSOut
-		} else {
-			sigmaFIn = mixOut
-		}
 		for j := 0; j < t; j++ {
-			sigmaFOut[j] = Sigma(api, sigmaFIn[j])
+			state[j] = Sigma(api, state[j])
 		}
-		arkIn = sigmaFOut
-		arkOut = Ark(api, arkIn, c, (nRoundsF/2+1)*t+nRoundsP+r*t)
-		mixIn = arkOut
-		mixOut = Mix(api, mixIn, m)
+		state = Ark(api, state, c, (r+1)*t)
+		state = Mix(api, state, m)
 	}
-	sigmaFIn = mixOut
+
+	//api.Println(20000000000)
+	//api.Println(state...)
+
 	for j := 0; j < t; j++ {
-		sigmaFOut[j] = Sigma(api, sigmaFIn[j])
+		state[j] = Sigma(api, state[j])
 	}
+	state = Ark(api, state, c, nRoundsF/2*t)
+	state = Mix(api, state, p)
+
+	for r := 0; r < nRoundsP; r++ {
+
+		state[0] = Sigma(api, state[0])
+
+		state[0] = api.Add(state[0], c[(nRoundsF/2+1)*t+r])
+		newState0 := frontend.Variable(0)
+		for j := 0; j < len(state); j++ {
+			mul := api.Mul(s[(t*2-1)*r+j], state[j])
+			newState0 = api.Add(newState0, mul)
+		}
+
+		for k := 1; k < t; k++ {
+			state[k] = api.Add(state[k], api.Mul(state[0], s[(t*2-1)*r+t+k-1]))
+		}
+		state[0] = newState0
+	}
+
+	//api.Println(30000000000)
+	//api.Println(state...)
+
+	for r := 0; r < nRoundsF/2-1; r++ {
+		for j := 0; j < t; j++ {
+			state[j] = Sigma(api, state[j])
+		}
+		state = Ark(api, state, c, (nRoundsF/2+1)*t+nRoundsP+r*t)
+		state = Mix(api, state, m)
+	}
+	//api.Println(40000000000)
+	//api.Println(state...)
+
+	for j := 0; j < t; j++ {
+		state[j] = Sigma(api, state[j])
+	}
+	//state = Mix(api, state, m)
+
 	for i := 0; i < nOuts; i++ {
-		out[i] = MixLast(api, sigmaFOut, m, i)
+		out[i] = MixLast(api, state, m, i)
 	}
 	return out
 }
