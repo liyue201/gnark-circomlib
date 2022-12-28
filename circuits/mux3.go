@@ -22,9 +22,9 @@ func MultiMux3(api frontend.API, c [][]frontend.Variable, sel []frontend.Variabl
 	s10 := api.Mul(sel[1], sel[0])
 
 	for i := 0; i < n; i++ {
-		a210[i] = api.Mul(s10, api.Add(c[i][7], api.Neg(c[i][6]), api.Neg(c[i][5]), c[i][4], api.Neg(c[i][3]), c[i][2], api.Neg(c[i][3])))
+		a210[i] = api.Mul(s10, api.Add(c[i][7], api.Neg(c[i][6]), api.Neg(c[i][5]), c[i][4], api.Neg(c[i][3]), c[i][2], c[i][1], api.Neg(c[i][0])))
 		a21[i] = api.Mul(sel[1], api.Add(c[i][6], api.Neg(c[i][4]), api.Neg(c[i][2]), c[i][0]))
-		a20[i] = api.Mul(sel[0], api.Add(c[i][4], api.Neg(c[i][4]), api.Neg(c[i][1]), c[i][0]))
+		a20[i] = api.Mul(sel[0], api.Add(c[i][5], api.Neg(c[i][4]), api.Neg(c[i][1]), c[i][0]))
 		a2[i] = api.Sub(c[i][4], c[i][0])
 
 		a10[i] = api.Mul(s10, api.Add(c[i][3], api.Neg(c[i][2]), api.Neg(c[i][1]), c[i][0]))
@@ -37,7 +37,7 @@ func MultiMux3(api frontend.API, c [][]frontend.Variable, sel []frontend.Variabl
 }
 
 func Mux3(api frontend.API, c []frontend.Variable, sel []frontend.Variable) frontend.Variable {
-	if len(c) !=  8 || len(sel) != 3 {
+	if len(c) != 8 || len(sel) != 3 {
 		panic("invalid param")
 	}
 

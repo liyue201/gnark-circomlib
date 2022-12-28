@@ -7,11 +7,14 @@ require (
 	github.com/consensys/gnark-crypto v0.7.0
 	github.com/ethereum/go-ethereum v1.10.21
 	github.com/iden3/go-iden3-crypto v0.0.13
+	github.com/minya-konka/pedersen v0.0.0-20221228123429-151d98c6740c
 )
 
 require (
 	github.com/btcsuite/btcd/btcec/v2 v2.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/dchest/blake256 v1.1.0 // indirect
+	github.com/dchest/blake512 v1.0.0 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.0.1 // indirect
 	github.com/fxamacker/cbor/v2 v2.2.0 // indirect
 	github.com/kr/text v0.2.0 // indirect

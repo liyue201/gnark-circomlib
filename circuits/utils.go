@@ -1,6 +1,7 @@
 package circuits
 
 import (
+	"github.com/consensys/gnark/frontend"
 	"math/big"
 )
 
@@ -40,4 +41,28 @@ func BigMul(x *big.Int, y *big.Int, c ...*big.Int) *big.Int {
 
 func BigDiv(x *big.Int, y *big.Int) *big.Int {
 	return big.NewInt(0).Div(x, y)
+}
+
+func MakeVariableArray(n int) []frontend.Variable {
+	a := make([]frontend.Variable, n)
+	for i := 0; i < n; i++ {
+		a[i] = 0
+	}
+	return a
+}
+
+func Make2DVariableArray(n, m int) [][]frontend.Variable {
+	a := make([][]frontend.Variable, n)
+	for i := 0; i < n; i++ {
+		a[i] = MakeVariableArray(m)
+	}
+	return a
+}
+
+func Make3DVariableArray(n, m, o int) [][][]frontend.Variable {
+	a := make([][][]frontend.Variable, n)
+	for i := 0; i < n; i++ {
+		a[i] = Make2DVariableArray(m, o)
+	}
+	return a
 }
