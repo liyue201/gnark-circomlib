@@ -81,9 +81,6 @@ func PoseidonEx(api frontend.API, inputs []frontend.Variable, initialState front
 	}
 	state = Ark(api, state, c, 0)
 
-	//api.Println(10000000000)
-	//api.Println(state...)
-
 	for r := 0; r < nRoundsF/2-1; r++ {
 		for j := 0; j < t; j++ {
 			state[j] = Sigma(api, state[j])
@@ -91,9 +88,6 @@ func PoseidonEx(api frontend.API, inputs []frontend.Variable, initialState front
 		state = Ark(api, state, c, (r+1)*t)
 		state = Mix(api, state, m)
 	}
-
-	//api.Println(20000000000)
-	//api.Println(state...)
 
 	for j := 0; j < t; j++ {
 		state[j] = Sigma(api, state[j])
@@ -118,9 +112,6 @@ func PoseidonEx(api frontend.API, inputs []frontend.Variable, initialState front
 		state[0] = newState0
 	}
 
-	//api.Println(30000000000)
-	//api.Println(state...)
-
 	for r := 0; r < nRoundsF/2-1; r++ {
 		for j := 0; j < t; j++ {
 			state[j] = Sigma(api, state[j])
@@ -128,13 +119,10 @@ func PoseidonEx(api frontend.API, inputs []frontend.Variable, initialState front
 		state = Ark(api, state, c, (nRoundsF/2+1)*t+nRoundsP+r*t)
 		state = Mix(api, state, m)
 	}
-	//api.Println(40000000000)
-	//api.Println(state...)
 
 	for j := 0; j < t; j++ {
 		state[j] = Sigma(api, state[j])
 	}
-	//state = Mix(api, state, m)
 
 	for i := 0; i < nOuts; i++ {
 		out[i] = MixLast(api, state, m, i)
