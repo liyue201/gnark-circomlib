@@ -2,6 +2,7 @@ package circuits
 
 import (
 	"github.com/consensys/gnark/frontend"
+	"github.com/consensys/gnark/std/hash"
 	"math/big"
 	"strings"
 )
@@ -151,4 +152,28 @@ func MultiMiMC7(api frontend.API, nRounds int, in []frontend.Variable, k fronten
 	}
 	out = r[nInputs]
 	return out
+}
+
+type mimc struct {
+	api    frontend.API
+	status frontend.Variable
+}
+
+func NewMiMC7(api frontend.API) hash.Hash {
+	return &mimc{
+		api:    api,
+		status: frontend.Variable(0),
+	}
+}
+
+func (m *mimc) Sum() frontend.Variable {
+	return m.status
+}
+
+func (m *mimc) Write(data ...frontend.Variable) {
+	m.status = MultiMiMC7(m.api, 91, data[:], m.status)
+}
+
+func (m *mimc) Reset() {
+	m.status = 0
 }
