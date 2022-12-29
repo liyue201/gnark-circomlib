@@ -154,26 +154,30 @@ func MultiMiMC7(api frontend.API, nRounds int, in []frontend.Variable, k fronten
 	return out
 }
 
-type mimc struct {
+type mimc7Hash struct {
 	api    frontend.API
+	data   []frontend.Variable
 	status frontend.Variable
 }
 
 func NewMiMC7(api frontend.API) hash.Hash {
-	return &mimc{
+	return &mimc7Hash{
 		api:    api,
 		status: frontend.Variable(0),
 	}
 }
 
-func (m *mimc) Sum() frontend.Variable {
+func (m *mimc7Hash) Sum() frontend.Variable {
+	m.status = MultiMiMC7(m.api, 91, m.data[:], 0)
 	return m.status
 }
 
-func (m *mimc) Write(data ...frontend.Variable) {
-	m.status = MultiMiMC7(m.api, 91, data[:], m.status)
+func (m *mimc7Hash) Write(data ...frontend.Variable) {
+	m.data = append(m.data, data...)
+
 }
 
-func (m *mimc) Reset() {
+func (m *mimc7Hash) Reset() {
 	m.status = 0
+	m.data = nil
 }

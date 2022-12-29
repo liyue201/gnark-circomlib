@@ -2,6 +2,7 @@ package circuits
 
 import (
 	"github.com/consensys/gnark/frontend"
+	"github.com/consensys/gnark/std/hash"
 	"math/big"
 )
 
@@ -133,4 +134,31 @@ func PoseidonEx(api frontend.API, inputs []frontend.Variable, initialState front
 func Poseidon(api frontend.API, inputs []frontend.Variable) frontend.Variable {
 	out := PoseidonEx(api, inputs, 0, 1)
 	return out[0]
+}
+
+type poseidonHash struct {
+	api    frontend.API
+	data   []frontend.Variable
+	status frontend.Variable
+}
+
+func NewPoseidonHash(api frontend.API) hash.Hash {
+	return &poseidonHash{
+		api:    api,
+		status: frontend.Variable(0),
+	}
+}
+
+func (m *poseidonHash) Sum() frontend.Variable {
+	m.status = Poseidon(m.api, m.data[:])
+	return m.status
+}
+
+func (m *poseidonHash) Write(data ...frontend.Variable) {
+	m.data = append(m.data, data...)
+}
+
+func (m *poseidonHash) Reset() {
+	m.status = 0
+	m.data = nil
 }

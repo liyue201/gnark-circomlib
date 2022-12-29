@@ -2,6 +2,7 @@ package circuits
 
 import (
 	"github.com/consensys/gnark/frontend"
+	"github.com/consensys/gnark/std/hash"
 	"math/big"
 	"strings"
 )
@@ -308,4 +309,31 @@ func MiMCFeistel(api frontend.API, nRounds int, xLIn, xRIn, k frontend.Variable)
 		}
 	}
 	return xLOut, xROut
+}
+
+type mimcSpongeHash struct {
+	api    frontend.API
+	data   []frontend.Variable
+	status frontend.Variable
+}
+
+func NewMimcSpongeHash(api frontend.API) hash.Hash {
+	return &mimcSpongeHash{
+		api:    api,
+		status: frontend.Variable(0),
+	}
+}
+
+func (m *mimcSpongeHash) Sum() frontend.Variable {
+	m.status = MiMCSponge(m.api, 91, 1, m.data[:], 0)
+	return m.status
+}
+
+func (m *mimcSpongeHash) Write(data ...frontend.Variable) {
+	m.data = append(m.data, data...)
+}
+
+func (m *mimcSpongeHash) Reset() {
+	m.status = 0
+	m.data = nil
 }
