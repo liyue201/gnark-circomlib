@@ -30,14 +30,15 @@ func (t *circuitEddsaPoseidon) Define(api frontend.API) error {
 func TestEdDSAPoseidonVerifier(t *testing.T) {
 	assert := test.NewAssert(t)
 
-	snarkCurve, _ := twistededwards.GetSnarkCurve(twistededwards2.BN254)
-
+	snarkField, err := twistededwards.GetSnarkField(twistededwards2.BN254)
+	assert.NoError(err)
+	
 	// generate parameters for the signatures
 	privKey, _ := eddsa.New(twistededwards2.BN254, crand.Reader)
 
 	// pick a message to sign
 	var msg big.Int
-	msg.Rand(rand.New(rand.NewSource(0)), snarkCurve.Info().Fr.Modulus())
+	msg.Rand(rand.New(rand.NewSource(0)), snarkField)
 
 	t.Log("msg to sign", msg.String())
 	msgData := msg.Bytes()
@@ -63,8 +64,8 @@ func TestEdDSAPoseidonVerifier(t *testing.T) {
 
 	var witness circuitEddsaPoseidon
 	witness.Message = msg
-	witness.PublicKey.Assign(snarkCurve, pubKey.Bytes())
-	witness.Signature.Assign(snarkCurve, signature)
+	witness.PublicKey.Assign(twistededwards2.BN254, pubKey.Bytes())
+	witness.Signature.Assign(twistededwards2.BN254, signature)
 
 	assert.ProverSucceeded(&circuit, &witness, test.WithCurves(ecc.BN254), test.WithBackends(backend.GROTH16))
 

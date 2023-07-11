@@ -37,7 +37,7 @@ func Test_MiMC(t *testing.T) {
 		Hash: hash,
 	}, test.WithCurves(ecc.BN254), test.WithBackends(backend.GROTH16))
 
-	_r1cs, _ := frontend.Compile(ecc.BN254, r1cs.NewBuilder, &circuit)
+	_r1cs, _ := frontend.Compile(ecc.BN254.ScalarField(), r1cs.NewBuilder, &circuit)
 	internal, secret, public := _r1cs.GetNbVariables()
 	fmt.Printf("public, secret, internal %v, %v, %v\n", public, secret, internal)
 }

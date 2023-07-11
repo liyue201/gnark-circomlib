@@ -12,7 +12,7 @@ func Sign(api frontend.API, in []frontend.Variable) frontend.Variable {
 	// (FrModulus-1)/2 =  10944121435919637611123202872628637544274182200208017171849102093287904247808
 	//v, _ := big.NewInt(0).SetString("10944121435919637611123202872628637544274182200208017171849102093287904247808", 10)
 
-	v := api.Compiler().Curve().Info().Fr.Modulus()
+	v := api.Compiler().Field()
 	v.Sub(v, big.NewInt(1))
 	v.Rsh(v, 1)
 	return CompConstant(api, in, v)
