@@ -317,7 +317,7 @@ type mimcSpongeHash struct {
 	status frontend.Variable
 }
 
-func NewMimcSpongeHash(api frontend.API) hash.Hash {
+func NewMimcSpongeHash(api frontend.API) hash.FieldHasher {
 	return &mimcSpongeHash{
 		api:    api,
 		status: frontend.Variable(0),

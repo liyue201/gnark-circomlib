@@ -142,7 +142,7 @@ type poseidonHash struct {
 	status frontend.Variable
 }
 
-func NewPoseidonHash(api frontend.API) hash.Hash {
+func NewPoseidonHash(api frontend.API) hash.FieldHasher {
 	return &poseidonHash{
 		api:    api,
 		status: frontend.Variable(0),
