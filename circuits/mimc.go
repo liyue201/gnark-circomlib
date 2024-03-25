@@ -160,7 +160,7 @@ type mimc7Hash struct {
 	status frontend.Variable
 }
 
-func NewMiMC7(api frontend.API) hash.Hash {
+func NewMiMC7(api frontend.API) hash.FieldHasher {
 	return &mimc7Hash{
 		api:    api,
 		status: frontend.Variable(0),

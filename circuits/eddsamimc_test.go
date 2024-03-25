@@ -7,7 +7,7 @@ import (
 	"github.com/consensys/gnark-crypto/signature/eddsa"
 	"github.com/consensys/gnark/backend"
 	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/std/algebra/twistededwards"
+	"github.com/consensys/gnark/std/algebra/native/twistededwards"
 	eddsa2 "github.com/consensys/gnark/std/signature/eddsa"
 	"github.com/consensys/gnark/test"
 	"github.com/liyue201/gnark-circomlib/utils/mimc7"
